@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 f.close()
 
                 for message in catalog:
-                    if message.string != "None" and message.string is not None:
+                    if message.string not in ["None", ""] and message.string is not None:
                         if message.auto_comments:
                             for field_id in message.auto_comments:
                                 [app, class_name, pk, field] = field_id.split('.')
@@ -45,4 +45,4 @@ class Command(BaseCommand):
                                 obj = model.objects.get(pk=pk)
                                 tr_field = "%s_%s" % (field, lang)
                                 setattr(obj, tr_field, message.string)
-                                obj.save()
+                                obj.save_revision().publish()
