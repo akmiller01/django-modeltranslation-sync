@@ -3,14 +3,14 @@ from __future__ import unicode_literals
 from os import mkdir
 from os.path import join, isdir
 
-from django.core.management.base import NoArgsCommand, CommandError
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from modeltranslation.translator import translator
 from babel.messages.catalog import Catalog
 from babel.messages.pofile import write_po
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
@@ -37,15 +37,18 @@ class Command(NoArgsCommand):
 
                 for field in opts.get_field_names():
                     tr_field = "%s_%s" % (field, lang)
+                    en_field = "%s_%s" % (field, "en")
                     for item in model.objects.all():
                         msgid = "%s.%s.%s" % (item._meta, item.pk, field)
                         msgstr = "%s" % getattr(item, tr_field)
-                        catalog.add(id=msgid, string=msgstr)
+                        enstr = "%s" % getattr(item, en_field)
+                        catalog.add(id=enstr, string=msgstr, auto_comments=[msgid, ])
 
             # write catalog to file
             lang_path = join(locale_path, lang)
             if not isdir(lang_path):
                 mkdir(lang_path)
-            f = open(join(lang_path, "LC_MESSAGES", filename_po), "w")
+                mkdir(join(lang_path, "LC_MESSAGES"))
+            f = open(join(lang_path, "LC_MESSAGES", filename_po), "wb")
             write_po(f, catalog)
             f.close()
