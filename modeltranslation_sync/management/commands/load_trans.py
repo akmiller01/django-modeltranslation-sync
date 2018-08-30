@@ -37,11 +37,12 @@ class Command(BaseCommand):
                 f.close()
 
                 for message in catalog:
-                    if message.auto_comments:
-                        for field_id in message.auto_comments:
-                            [app, class_name, pk, field] = field_id.split('.')
-                            model = apps.get_model(app, class_name)
-                            obj = model.objects.get(pk=pk)
-                            tr_field = "%s_%s" % (field, lang)
-                            setattr(obj, tr_field, message.string)
-                            obj.save()
+                    if message.string != "None":
+                        if message.auto_comments:
+                            for field_id in message.auto_comments:
+                                [app, class_name, pk, field] = field_id.split('.')
+                                model = apps.get_model(app, class_name)
+                                obj = model.objects.get(pk=pk)
+                                tr_field = "%s_%s" % (field, lang)
+                                setattr(obj, tr_field, message.string)
+                                obj.save()

@@ -36,13 +36,16 @@ class Command(BaseCommand):
                 opts = translator.get_options_for_model(model)
 
                 for field in opts.get_field_names():
-                    tr_field = "%s_%s" % (field, lang)
-                    en_field = "%s_%s" % (field, "en")
-                    for item in model.objects.all():
-                        msgid = "%s.%s.%s" % (item._meta, item.pk, field)
-                        msgstr = "%s" % getattr(item, tr_field)
-                        enstr = "%s" % getattr(item, en_field)
-                        catalog.add(id=enstr, string=msgstr, auto_comments=[msgid, ])
+                    if field != "url_path":
+                        tr_field = "%s_%s" % (field, lang)
+                        en_field = "%s_%s" % (field, "en")
+                        for item in model.objects.all():
+                            msgid = "%s.%s.%s" % (item._meta, item.pk, field)
+                            msgstr = "%s" % getattr(item, tr_field)
+                            enval = getattr(item, en_field)
+                            if enval is not None:
+                                enstr = "%s" % enval
+                                catalog.add(id=enstr, string=msgstr, auto_comments=[msgid, ])
 
             # write catalog to file
             lang_path = join(locale_path, lang)
